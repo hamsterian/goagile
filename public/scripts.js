@@ -21,7 +21,7 @@ function updateCountry() {
 
 var create_email = false;
 var final_transcript = '';
-var recognizing = false;
+var recognizing = true;
 var ignore_onend = true;
 var start_timestamp;
 
