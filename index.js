@@ -73,40 +73,91 @@ io.on('connection', function (socket) {
   console.log('user connected');
 
   socket.on('hamster', function (msg) {
-    
-    request({
-      uri: 'https://hampster.atlassian.net/rest/api/2/issue/HAM-4',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Basic aGFyc2hhZ21AZ21haWwuY29tOmhhbXBzdGVyQDEyMw=='
+    var message = encodeURIComponent(msg);
+    var username = "8d5c4ce6-ea24-4fba-9540-bd98d45585a6";
+    var password = "4FN2t82l4KuY";
+    var url = "https://gateway.watsonplatform.net/natural-language-understanding/api/v1/analyze?version=2017-02-27&text="
+      + message + "&features=keywords";
+
+    var auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
+
+    request(
+      {
+        url: url,
+        headers: {
+          "Authorization": auth
+        }
       },
-      method: 'PUT',
-      json: {
-        "update": {
-          "description": [
-            {
-              "set": "JIRA should also come with a free pony"
+
+      function (error, response, body) {
+        // Do more stuff with 'body' here.
+        var bod = JSON.parse(body);
+
+        console.log(bod);
+
+        var i = 0;
+
+        for (i = 0; i < bod.keywords.length; i++) {
+          console.log(bod.keywords[i]);
+        }
+
+        for (i = 0; i < bod.keywords.length; i++) {
+          console.log("Searching for Promethius" + bod.keywords[i].text);
+
+          request({
+            uri: encodeURI('https://hampster.atlassian.net/rest/api/2/search?jql=summary~' + bod.keywords[i].text),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Basic aGFyc2hhZ21AZ21haWwuY29tOmhhbXBzdGVyQDEyMw=='
             }
-          ],
-          "comment": [
-            {
-              "add": {
-                "body": msg
+          },
+            function (error, response, body) {
+              // Do more stuff with 'body' here.
+              var bod = JSON.parse(body);
+
+              console.log(bod);
+
+              for (i = 0; i < bod.issues.length; i++) {
+                console.log('attempting to write comment ' + message + 'to jira');
+                request({
+                  uri: 'https://hampster.atlassian.net/rest/api/2/issue/' + bod.issues[i].key,
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic aGFyc2hhZ21AZ21haWwuY29tOmhhbXBzdGVyQDEyMw=='
+                  },
+                  method: 'PUT',
+                  json: {
+                    "update": {
+                      "description": [
+                        {
+                          "set": "JIRA should also come with a free pony"
+                        }
+                      ],
+                      "comment": [
+                        {
+                          "add": {
+                            "body": message
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }, function (error, response, body) {
+                  if (!error && response.statusCode == 204) {
+                    console.log("Success");
+                  }
+                  else {
+                    console.log("Fail");
+                  }
+                });
               }
             }
-          ]
+          );
         }
-      }
-    }, function (error, response, body) {
-      if (!error && response.statusCode == 204) {
-        console.log("Success");
-      }
-      else {
-        console.log("Fail");
-      }
-    });
-  });
-});
+      });
+  })
+})
+
 http.listen(3000, function () {
   console.log('listening on *:3000');
 });
