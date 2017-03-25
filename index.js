@@ -81,7 +81,7 @@ io.on('connection', function (socket) {
     var auth = "Basic " + new Buffer(username + ":" + password).toString("base64");
 
     //Sending to IBM.
-    console.log("Sending message:{" + msg + "}, to Watson Natural Language API" + "\n");
+    console.log("Sending message, to Watson Natural Language API" + "\n");
     request(
       {
         url: url,
@@ -95,17 +95,17 @@ io.on('connection', function (socket) {
         var bod = JSON.parse(body);
 
         //Sending to IBM.
-        console.log("Recieved:\n" + bod + "\n");
+        console.log("Recieved:\n" + body + '\n');
         console.log("Identified Keywords:\n");
         var i = 0;
 
         for (i = 0; i < bod.keywords.length; i++) {
-          console.log(bod.keywords[i].text);
+          console.log(bod.keywords[i].text + '\n');
         }
 
         // Searching  JIRA.
         for (i = 0; i < bod.keywords.length; i++) {
-          console.log("Searching for JIRA items related to:" + bod.keywords[i].text + "\n\n");
+          console.log("Searching for JIRA items related to:" + bod.keywords[i].text + '\n');
 
           request({
             uri: encodeURI('https://hampster.atlassian.net/rest/api/2/search?jql=summary~' + bod.keywords[i].text),
@@ -118,12 +118,17 @@ io.on('connection', function (socket) {
               // Do more stuff with 'body' here.
               var bod = JSON.parse(body);
 
-              console.log('JIRA returned the following related issues: \n' + bod + "\n\n\n");
+              console.log('JIRA returned the following related issues: \n');
+
+              // Commenting JIRAs.
+              for (i = 0; i < bod.issues.length; i++) {
+                console.log(bod.issues[i].self +'\n');
+              }
 
               // Commenting JIRAs.
               for (i = 0; i < bod.issues.length; i++) {
                 
-                console.log('Attempting to write comment ' + message + 'to JIRA item: ' + bod.issues[i].key);
+                console.log('Attempting to write comment "' + msg + '" to JIRA item: ' + bod.issues[i].key + '\n');
 
                 request({
                   uri: 'https://hampster.atlassian.net/rest/api/2/issue/' + bod.issues[i].key,
@@ -142,7 +147,7 @@ io.on('connection', function (socket) {
                       "comment": [
                         {
                           "add": {
-                            "body": message
+                            "body": msg
                           }
                         }
                       ]
@@ -150,7 +155,7 @@ io.on('connection', function (socket) {
                   }
                 }, function (error, response, body) {
                   if (!error && response.statusCode == 204) {
-                    console.log('Succesfully updated to JIRA item: ' + bod.issues[i].key +'\n\nWith message: ' + 'message');
+                    console.log('Success');
                   }
                   else {
                     console.log("Fail");
