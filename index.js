@@ -110,7 +110,7 @@ io.on('connection', function (socket) {
             uri: encodeURI('https://promethian.atlassian.net/rest/api/2/search?jql=summary~' + bod.keywords[i].text),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'Basic aGFyc2hhZ21AZ21haWwuY29tOmhhbXBzdGVyQDEyMw=='
+              'Authorization': 'Basic d2FqaWRfcG9lcm5vbW9AaG90bWFpbC5jb206aXNhdG9yMzNI'
             }
           },
             function (error, response, body) {
@@ -130,10 +130,10 @@ io.on('connection', function (socket) {
                 console.log('Attempting to write comment "' + msg + '" to JIRA item: ' + bod.issues[i].key + '\n');
 
                 request({
-                  uri: 'https://hampster.atlassian.net/rest/api/2/issue/' + bod.issues[i].key,
+                  uri: 'https://promethian.atlassian.net/rest/api/2/issue/' + bod.issues[i].key,
                   headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Basic aGFyc2hhZ21AZ21haWwuY29tOmhhbXBzdGVyQDEyMw=='
+                    'Authorization': 'Basic d2FqaWRfcG9lcm5vbW9AaG90bWFpbC5jb206aXNhdG9yMzNI'
                   },
                   method: 'PUT',
                   json: {
@@ -157,7 +157,7 @@ io.on('connection', function (socket) {
                     console.log('Success');
                   }
                   else {
-                    console.log("Fail");
+                    console.log("Fail" + error);
                   }
                 });
               }
