@@ -73,8 +73,8 @@ io.on('connection', function (socket) {
     console.log("Recieved message from client: " + msg + "\n");
 
     var message = encodeURIComponent(msg);
-    var username = "8d5c4ce6-ea24-4fba-9540-bd98d45585a6";
-    var password = "4FN2t82l4KuY";
+    var username = "a539e002-ee61-4c66-a954-65fb432f5bd5";
+    var password = "Ej4Yu4l5DpYA";
     var url = "https://gateway.watsonplatform.net/natural-language-understanding/api/v1/analyze?version=2017-02-27&text="
       + message + "&features=keywords";
 
@@ -89,7 +89,6 @@ io.on('connection', function (socket) {
           "Authorization": auth
         }
       },
-
       function (error, response, body) {
         // Do more stuff with 'body' here.
         var bod = JSON.parse(body);
@@ -108,7 +107,7 @@ io.on('connection', function (socket) {
           console.log("Searching for JIRA items related to:" + bod.keywords[i].text + '\n');
 
           request({
-            uri: encodeURI('https://hampster.atlassian.net/rest/api/2/search?jql=summary~' + bod.keywords[i].text),
+            uri: encodeURI('https://promethian.atlassian.net/rest/api/2/search?jql=summary~' + bod.keywords[i].text),
             headers: {
               'Content-Type': 'application/json',
               'Authorization': 'Basic aGFyc2hhZ21AZ21haWwuY29tOmhhbXBzdGVyQDEyMw=='
